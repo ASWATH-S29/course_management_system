@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Course Management System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#E7E4DA;
+    --paper-raised:#F1EFE7;
+    --ink:#1E2A22;
+    --ink-soft:#5A6459;
+    --rule:#C9C4B4;
+    --moss:#3D5C42;
+    --moss-deep:#2A4230;
+    --ochre:#B4762A;
+    --ochre-soft:#EADFC9;
+    --danger:#9C3B2E;
+    --danger-soft:#F1DAD3;
+    --radius:3px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'IBM Plex Sans', sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  .wrap{
+    max-width:1100px;
+    margin:0 auto;
+    padding:40px 24px 80px;
+  }
+
+  /* ---- Header ---- */
+  header.masthead{
+    border-bottom:2px solid var(--ink);
+    padding-bottom:18px;
+    margin-bottom:28px;
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    gap:16px;
+    flex-wrap:wrap;
+  }
+  .masthead h1{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:clamp(28px,4vw,40px);
+    margin:0;
+    letter-spacing:-0.01em;
+  }
+  .masthead .sub{
+    color:var(--ink-soft);
+    font-size:14.5px;
+    margin-top:6px;
+    max-width:46ch;
+    line-height:1.5;
+  }
+  .masthead .term{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px;
+    color:var(--moss-deep);
+    background:var(--ochre-soft);
+    border:1px solid var(--rule);
+    padding:5px 10px;
+    border-radius:var(--radius);
+    white-space:nowrap;
+  }
+
+  /* ---- Stats strip ---- */
+  .stats{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    border:1px solid var(--rule);
+    border-radius:var(--radius);
+    overflow:hidden;
+    margin-bottom:28px;
+    background:var(--paper-raised);
+  }
+  .stat{
+    padding:16px 18px;
+    border-left:1px solid var(--rule);
+  }
+  .stat:first-child{border-left:none;}
+  .stat .n{
+    font-family:'Fraunces', serif;
+    font-size:26px;
+    font-weight:600;
+    line-height:1;
+    color:var(--moss-deep);
+  }
+  .stat .l{
+    font-size:12px;
+    color:var(--ink-soft);
+    margin-top:6px;
+  }
+
+  /* ---- Toolbar ---- */
+  .toolbar{
+    display:flex;
+    gap:10px;
+    margin-bottom:18px;
+    flex-wrap:wrap;
+    align-items:center;
+  }
+  .toolbar input[type="search"],
+  .toolbar select{
+    font-family:inherit;
+    font-size:14px;
+    padding:9px 12px;
+    border:1px solid var(--rule);
+    border-radius:var(--radius);
+    background:var(--paper-raised);
+    color:var(--ink);
+  }
+  .toolbar input[type="search"]{ flex:1; min-width:180px; }
+  .toolbar select{ min-width:150px; }
+  .toolbar input:focus, .toolbar select:focus{
+    outline:2px solid var(--moss);
+    outline-offset:1px;
+  }
+  .btn{
+    font-family:inherit;
+    font-size:14px;
+    font-weight:500;
+    padding:9px 16px;
+    border-radius:var(--radius);
+    border:1px solid transparent;
+    cursor:pointer;
+    transition:background .15s ease, transform .05s ease;
+  }
+  .btn:active{ transform:translateY(1px); }
+  .btn-primary{ background:var(--moss-deep); color:#fff; }
+  .btn-primary:hover{ background:var(--moss); }
+  .btn-ghost{ background:transparent; border-color:var(--rule); color:var(--ink); }
+  .btn-ghost:hover{ background:var(--paper-raised); }
+  .btn:focus-visible{ outline:2px solid var(--moss); outline-offset:2px; }
+
+  /* ---- Table ---- */
+  .ledger{
+    border:1px solid var(--rule);
+    border-radius:var(--radius);
+    overflow:hidden;
+    background:var(--paper-raised);
+  }
+  table{ width:100%; border-collapse:collapse; }
+  thead th{
+    text-align:left;
+    font-size:12px;
+    font-weight:600;
+    color:var(--ink-soft);
+    padding:12px 14px;
+    border-bottom:1px solid var(--rule);
+  }
+  tbody td{
+    padding:13px 14px;
+    font-size:14px;
+    border-bottom:1px solid var(--rule);
+    vertical-align:top;
+  }
+  tbody tr:last-child td{ border-bottom:none; }
+  tbody tr:hover{ background:rgba(61,92,66,0.05); }
+  .code{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    color:var(--moss-deep);
+    font-weight:500;
+  }
+  .cname{ font-weight:500; }
+  .meta{ color:var(--ink-soft); font-size:12.5px; margin-top:2px; }
+  .pill{
+    display:inline-block;
+    font-size:11.5px;
+    padding:2px 8px;
+    border-radius:12px;
+    background:var(--ochre-soft);
+    color:var(--ochre);
+    border:1px solid #DCC79A;
+  }
+  .seats{ font-family:'IBM Plex Mono', monospace; font-size:13px; }
+  .seats.low{ color:var(--danger); }
+  .row-actions{ display:flex; gap:6px; }
+  .icon-btn{
+    background:none;
+    border:1px solid var(--rule);
+    border-radius:var(--radius);
+    padding:6px 10px;
+    font-size:12.5px;
+    cursor:pointer;
+    color:var(--ink);
+    font-family:inherit;
+  }
+  .icon-btn:hover{ background:var(--paper); }
+  .icon-btn.danger:hover{ background:var(--danger-soft); border-color:var(--danger); color:var(--danger); }
+
+  .empty{
+    padding:60px 20px;
+    text-align:center;
+    color:var(--ink-soft);
+  }
+  .empty .big{
+    font-family:'Fraunces', serif;
+    font-size:19px;
+    color:var(--ink);
+    margin-bottom:6px;
+  }
+
+  /* ---- Modal ---- */
+  .backdrop{
+    position:fixed; inset:0;
+    background:rgba(20,26,20,0.45);
+    display:none;
+    align-items:flex-start;
+    justify-content:center;
+    padding:40px 16px;
+    overflow-y:auto;
+    z-index:50;
+  }
+  .backdrop.open{ display:flex; }
+  .modal{
+    background:var(--paper-raised);
+    border:1px solid var(--rule);
+    border-radius:var(--radius);
+    width:100%;
+    max-width:560px;
+    padding:26px 26px 22px;
+  }
+  .modal h2{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:22px;
+    margin:0 0 4px;
+  }
+  .modal .modal-sub{
+    color:var(--ink-soft);
+    font-size:13px;
+    margin-bottom:20px;
+  }
+  .field{ margin-bottom:15px; }
+  .field label{
+    display:block;
+    font-size:12.5px;
+    font-weight:500;
+    margin-bottom:5px;
+    color:var(--ink-soft);
+  }
+  .field input, .field select, .field textarea{
+    width:100%;
+    font-family:inherit;
+    font-size:14px;
+    padding:9px 11px;
+    border:1px solid var(--rule);
+    border-radius:var(--radius);
+    background:#fff;
+    color:var(--ink);
+  }
+  .field textarea{ resize:vertical; min-height:60px; }
+  .field input:focus, .field select:focus, .field textarea:focus{
+    outline:2px solid var(--moss);
+    outline-offset:1px;
+  }
+  .field .err{
+    color:var(--danger);
+    font-size:12px;
+    margin-top:4px;
+    display:none;
+  }
+  .field.invalid input, .field.invalid select{ border-color:var(--danger); }
+  .field.invalid .err{ display:block; }
+  .row2{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .modal-actions{
+    display:flex;
+    justify-content:flex-end;
+    gap:10px;
+    margin-top:22px;
+    border-top:1px solid var(--rule);
+    padding-top:16px;
+  }
+
+  .toast{
+    position:fixed;
+    bottom:22px;
+    left:50%;
+    transform:translateX(-50%) translateY(10px);
+    background:var(--moss-deep);
+    color:#fff;
+    padding:11px 18px;
+    border-radius:var(--radius);
+    font-size:13.5px;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .2s ease, transform .2s ease;
+    z-index:60;
+  }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+  .toast.err{ background:var(--danger); }
+
+  footer.note{
+    margin-top:34px;
+    padding-top:16px;
+    border-top:1px solid var(--rule);
+    font-size:12px;
+    color:var(--ink-soft);
+    line-height:1.6;
+  }
+
+  @media (max-width:640px){
+    .stats{ grid-template-columns:repeat(2,1fr); }
+    .stat:nth-child(3){ border-left:none; }
+    thead{ display:none; }
+    table, tbody, tr, td{ display:block; width:100%; }
+    tbody tr{ border-bottom:1px solid var(--rule); padding:12px 14px; }
+    tbody td{ border:none; padding:4px 0; }
+    tbody td:before{
+      content:attr(data-label);
+      display:block;
+      font-size:11px;
+      color:var(--ink-soft);
+      margin-bottom:2px;
+    }
+    .row2{ grid-template-columns:1fr; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ transition:none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <div>
+      <h1>Course Register</h1>
+      <div class="sub">A working record of every course offered this term — add, update, and retire entries as the catalog changes.</div>
+    </div>
+    <div class="term" id="termTag">Academic Year 2026–27</div>
+  </header>
+
+  <div class="stats" id="statsRow">
+    <div class="stat"><div class="n" id="statTotal">0</div><div class="l">Courses on record</div></div>
+    <div class="stat"><div class="n" id="statCredits">0</div><div class="l">Total credit hours</div></div>
+    <div class="stat"><div class="n" id="statDepts">0</div><div class="l">Departments</div></div>
+    <div class="stat"><div class="n" id="statSeats">0</div><div class="l">Open seats</div></div>
+  </div>
+
+  <div class="toolbar">
+    <input type="search" id="searchInput" placeholder="Search by course name, code, or instructor…" aria-label="Search courses">
+    <select id="deptFilter" aria-label="Filter by department">
+      <option value="">All departments</option>
+    </select>
+    <select id="semFilter" aria-label="Filter by semester">
+      <option value="">All semesters</option>
+      <option value="1">Semester 1</option>
+      <option value="2">Semester 2</option>
+      <option value="3">Semester 3</option>
+      <option value="4">Semester 4</option>
+      <option value="5">Semester 5</option>
+      <option value="6">Semester 6</option>
+      <option value="7">Semester 7</option>
+      <option value="8">Semester 8</option>
+    </select>
+    <button class="btn btn-primary" id="addBtn">Add course</button>
+  </div>
+
+  <div class="ledger">
+    <table>
+      <thead>
+        <tr>
+          <th style="width:14%">Code</th>
+          <th style="width:28%">Course</th>
+          <th style="width:16%">Department</th>
+          <th style="width:10%">Credits</th>
+          <th style="width:9%">Semester</th>
+          <th style="width:10%">Seats</th>
+          <th style="width:13%"></th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+    <div class="empty" id="emptyState" style="display:none;">
+      <div class="big">No courses match yet</div>
+      <div>Try clearing the search or filters, or add a new course to the register.</div>
+    </div>
+  </div>
+
+  <footer class="note">
+    Data is stored locally in this browser (no external server required for this demo build). The internal <code>courseStore</code> module below exposes the same operations a REST backend would — <code>list</code>, <code>create</code>, <code>update</code>, <code>remove</code> — mapped to <code>GET/POST/PUT/DELETE /api/courses/</code>, so the storage layer can be swapped for a real API without touching the interface.
+  </footer>
+
+</div>
+
+<!-- Modal -->
+<div class="backdrop" id="backdrop">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <h2 id="modalTitle">Add course</h2>
+    <div class="modal-sub">Fields marked required must be filled before saving.</div>
+    <form id="courseForm" novalidate>
+      <div class="row2">
+        <div class="field" id="f-code">
+          <label for="in-code">Course code *</label>
+          <input id="in-code" name="code" placeholder="e.g. CS301" autocomplete="off">
+          <div class="err">Enter a code like CS301 (2–5 letters, 2–4 digits).</div>
+        </div>
+        <div class="field" id="f-credits">
+          <label for="in-credits">Credits *</label>
+          <input id="in-credits" name="credits" type="number" min="1" max="6" placeholder="1–6">
+          <div class="err">Credits must be a number between 1 and 6.</div>
+        </div>
+      </div>
+      <div class="field" id="f-name">
+        <label for="in-name">Course name *</label>
+        <input id="in-name" name="name" placeholder="e.g. Database Management Systems" autocomplete="off">
+        <div class="err">Course name is required.</div>
+      </div>
+      <div class="row2">
+        <div class="field" id="f-dept">
+          <label for="in-dept">Department *</label>
+          <input id="in-dept" name="department" placeholder="e.g. Information Technology" autocomplete="off">
+          <div class="err">Department is required.</div>
+        </div>
+        <div class="field" id="f-sem">
+          <label for="in-sem">Semester *</label>
+          <select id="in-sem" name="semester">
+            <option value="">Select…</option>
+            <option value="1">1</option><option value="2">2</option>
+            <option value="3">3</option><option value="4">4</option>
+            <option value="5">5</option><option value="6">6</option>
+            <option value="7">7</option><option value="8">8</option>
+          </select>
+          <div class="err">Select a semester.</div>
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field" id="f-instructor">
+          <label for="in-instructor">Instructor *</label>
+          <input id="in-instructor" name="instructor" placeholder="e.g. Prof. R. Menon" autocomplete="off">
+          <div class="err">Instructor name is required.</div>
+        </div>
+        <div class="field" id="f-seats">
+          <label for="in-seats">Seats available *</label>
+          <input id="in-seats" name="seats" type="number" min="0" placeholder="e.g. 60">
+          <div class="err">Seats must be zero or a positive number.</div>
+        </div>
+      </div>
+      <div class="field">
+        <label for="in-desc">Description (optional)</label>
+        <textarea id="in-desc" name="description" placeholder="One or two lines on what the course covers…"></textarea>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" id="cancelBtn">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="saveBtn">Save course</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* =========================================================
+     courseStore — simulated REST/data layer
+     Maps 1:1 to a backend API:
+       list()        -> GET    /api/courses/
+       create(data)  -> POST   /api/courses/
+       update(id,d)  -> PUT    /api/courses/{id}/
+       remove(id)    -> DELETE /api/courses/{id}/
+     Backed by localStorage so the app is fully self-contained;
+     swapping these four functions for fetch() calls is the only
+     change needed to point this UI at a real Django/Spring backend.
+  ========================================================= */
+  const STORAGE_KEY = "cms_courses_v1";
+
+  const seedData = [
+    { id: cryptoRandomId(), code:"IT301", name:"Database Management Systems", department:"Information Technology", instructor:"Dr. K. Iyer", credits:4, semester:5, seats:6, description:"Relational design, SQL, normalization, and transactions." },
+    { id: cryptoRandomId(), code:"IT205", name:"Web Application Development", department:"Information Technology", instructor:"Prof. S. Nair", credits:3, semester:3, seats:42, description:"Frontend, backend, and REST APIs for full-stack apps." },
+    { id: cryptoRandomId(), code:"CS410", name:"Operating Systems", department:"Computer Science", instructor:"Dr. A. Verma", credits:4, semester:6, seats:0, description:"Processes, scheduling, memory management, concurrency." },
+    { id: cryptoRandomId(), code:"MA204", name:"Discrete Mathematics", department:"Mathematics", instructor:"Prof. L. Rao", credits:3, semester:2, seats:55, description:"Logic, set theory, graphs, and combinatorics." }
+  ];
+
+  function cryptoRandomId(){
+    return "c_" + Math.random().toString(36).slice(2,10) + Date.now().toString(36);
+  }
+
+  function readAll(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw){
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(seedData));
+        return structuredCloneSafe(seedData);
+      }
+      return JSON.parse(raw);
+    }catch(e){
+      console.error("Storage read failed, starting fresh.", e);
+      return [];
+    }
+  }
+  function writeAll(list){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+  }
+  function structuredCloneSafe(obj){
+    return JSON.parse(JSON.stringify(obj));
+  }
+
+  const courseStore = {
+    list(){ return readAll(); },
+    create(data){
+      const list = readAll();
+      const record = Object.assign({ id: cryptoRandomId() }, data);
+      list.push(record);
+      writeAll(list);
+      return record;
+    },
+    update(id, data){
+      const list = readAll();
+      const idx = list.findIndex(c => c.id === id);
+      if(idx === -1) throw new Error("Record not found");
+      list[idx] = Object.assign({}, list[idx], data, { id });
+      writeAll(list);
+      return list[idx];
+    },
+    remove(id){
+      const list = readAll();
+      const next = list.filter(c => c.id !== id);
+      writeAll(next);
+      return next;
+    }
+  };
+
+  /* =========================================================
+     UI state + rendering
+  ========================================================= */
+  let editingId = null;
+  let query = "";
+  let deptValue = "";
+  let semValue = "";
+
+  const els = {
+    tbody: document.getElementById("tableBody"),
+    empty: document.getElementById("emptyState"),
+    search: document.getElementById("searchInput"),
+    deptFilter: document.getElementById("deptFilter"),
+    semFilter: document.getElementById("semFilter"),
+    addBtn: document.getElementById("addBtn"),
+    backdrop: document.getElementById("backdrop"),
+    form: document.getElementById("courseForm"),
+    modalTitle: document.getElementById("modalTitle"),
+    cancelBtn: document.getElementById("cancelBtn"),
+    toast: document.getElementById("toast"),
+    statTotal: document.getElementById("statTotal"),
+    statCredits: document.getElementById("statCredits"),
+    statDepts: document.getElementById("statDepts"),
+    statSeats: document.getElementById("statSeats"),
+  };
+
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, ch => ({
+      "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
+    }[ch]));
+  }
+
+  function refreshDeptOptions(list){
+    const current = els.deptFilter.value;
+    const depts = Array.from(new Set(list.map(c => c.department))).sort();
+    els.deptFilter.innerHTML = '<option value="">All departments</option>' +
+      depts.map(d => `<option value="${escapeHtml(d)}">${escapeHtml(d)}</option>`).join("");
+    if(depts.includes(current)) els.deptFilter.value = current;
+  }
+
+  function renderStats(list){
+    const totalCredits = list.reduce((sum,c) => sum + Number(c.credits||0), 0);
+    const depts = new Set(list.map(c => c.department));
+    const openSeats = list.reduce((sum,c) => sum + Number(c.seats||0), 0);
+    els.statTotal.textContent = list.length;
+    els.statCredits.textContent = totalCredits;
+    els.statDepts.textContent = depts.size;
+    els.statSeats.textContent = openSeats;
+  }
+
+  function applyFilters(list){
+    return list.filter(c => {
+      if(deptValue && c.department !== deptValue) return false;
+      if(semValue && String(c.semester) !== String(semValue)) return false;
+      if(query){
+        const q = query.toLowerCase();
+        const hay = `${c.code} ${c.name} ${c.instructor}`.toLowerCase();
+        if(!hay.includes(q)) return false;
+      }
+      return true;
+    });
+  }
+
+  function render(){
+    const all = courseStore.list();
+    refreshDeptOptions(all);
+    renderStats(all);
+
+    const filtered = applyFilters(all).sort((a,b) => a.code.localeCompare(b.code));
+
+    if(filtered.length === 0){
+      els.tbody.innerHTML = "";
+      els.empty.style.display = "block";
+      return;
+    }
+    els.empty.style.display = "none";
+
+    els.tbody.innerHTML = filtered.map(c => {
+      const lowSeats = Number(c.seats) === 0;
+      return `
+      <tr>
+        <td data-label="Code"><span class="code">${escapeHtml(c.code)}</span></td>
+        <td data-label="Course">
+          <div class="cname">${escapeHtml(c.name)}</div>
+          <div class="meta">${escapeHtml(c.instructor)}</div>
+        </td>
+        <td data-label="Department"><span class="pill">${escapeHtml(c.department)}</span></td>
+        <td data-label="Credits">${escapeHtml(c.credits)}</td>
+        <td data-label="Semester">${escapeHtml(c.semester)}</td>
+        <td data-label="Seats"><span class="seats ${lowSeats ? 'low' : ''}">${lowSeats ? 'Full' : c.seats}</span></td>
+        <td data-label="Actions">
+          <div class="row-actions">
+            <button class="icon-btn" data-action="edit" data-id="${c.id}">Edit</button>
+            <button class="icon-btn danger" data-action="delete" data-id="${c.id}">Delete</button>
+          </div>
+        </td>
+      </tr>`;
+    }).join("");
+  }
+
+  /* =========================================================
+     Toast
+  ========================================================= */
+  let toastTimer = null;
+  function showToast(msg, isError){
+    els.toast.textContent = msg;
+    els.toast.classList.toggle("err", !!isError);
+    els.toast.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => els.toast.classList.remove("show"), 2400);
+  }
+
+  /* =========================================================
+     Modal + validation
+  ========================================================= */
+  function openModal(course){
+    editingId = course ? course.id : null;
+    els.modalTitle.textContent = course ? "Edit course" : "Add course";
+    els.form.reset();
+    clearErrors();
+
+    if(course){
+      els.form.code.value = course.code;
+      els.form.name.value = course.name;
+      els.form.department.value = course.department;
+      els.form.semester.value = course.semester;
+      els.form.instructor.value = course.instructor;
+      els.form.credits.value = course.credits;
+      els.form.seats.value = course.seats;
+      els.form.description.value = course.description || "";
+    }
+    els.backdrop.classList.add("open");
+    setTimeout(() => els.form.code.focus(), 30);
+  }
+  function closeModal(){
+    els.backdrop.classList.remove("open");
+    editingId = null;
+  }
+
+  function clearErrors(){
+    document.querySelectorAll(".field").forEach(f => f.classList.remove("invalid"));
+  }
+  function setError(fieldId, on){
+    const f = document.getElementById(fieldId);
+    if(f) f.classList.toggle("invalid", !!on);
+  }
+
+  function validate(data, existingId){
+    clearErrors();
+    let ok = true;
+
+    const codePattern = /^[A-Za-z]{2,5}\d{2,4}$/;
+    if(!codePattern.test(data.code.trim())){
+      setError("f-code", true); ok = false;
+    } else {
+      // uniqueness check (case-insensitive), excluding the record being edited
+      const all = courseStore.list();
+      const dupe = all.some(c => c.code.toLowerCase() === data.code.trim().toLowerCase() && c.id !== existingId);
+      if(dupe){ setError("f-code", true); ok = false; }
+    }
+
+    if(!data.name.trim()){ setError("f-name", true); ok = false; }
+    if(!data.department.trim()){ setError("f-dept", true); ok = false; }
+    if(!data.semester){ setError("f-sem", true); ok = false; }
+    if(!data.instructor.trim()){ setError("f-instructor", true); ok = false; }
+
+    const credits = Number(data.credits);
+    if(!data.credits || isNaN(credits) || credits < 1 || credits > 6){
+      setError("f-credits", true); ok = false;
+    }
+
+    const seats = Number(data.seats);
+    if(data.seats === "" || isNaN(seats) || seats < 0){
+      setError("f-seats", true); ok = false;
+    }
+
+    return ok;
+  }
+
+  /* =========================================================
+     Event wiring
+  ========================================================= */
+  els.addBtn.addEventListener("click", () => openModal(null));
+  els.cancelBtn.addEventListener("click", closeModal);
+  els.backdrop.addEventListener("click", (e) => { if(e.target === els.backdrop) closeModal(); });
+  document.addEventListener("keydown", (e) => {
+    if(e.key === "Escape" && els.backdrop.classList.contains("open")) closeModal();
+  });
+
+  els.form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const fd = new FormData(els.form);
+    const data = {
+      code: (fd.get("code")||"").toString().trim().toUpperCase(),
+      name: (fd.get("name")||"").toString().trim(),
+      department: (fd.get("department")||"").toString().trim(),
+      semester: (fd.get("semester")||"").toString(),
+      instructor: (fd.get("instructor")||"").toString().trim(),
+      credits: (fd.get("credits")||"").toString(),
+      seats: (fd.get("seats")||"").toString(),
+      description: (fd.get("description")||"").toString().trim()
+    };
+
+    if(!validate(data, editingId)){
+      showToast("Please fix the highlighted fields.", true);
+      return;
+    }
+
+    const payload = {
+      code: data.code,
+      name: data.name,
+      department: data.department,
+      semester: Number(data.semester),
+      instructor: data.instructor,
+      credits: Number(data.credits),
+      seats: Number(data.seats),
+      description: data.description
+    };
+
+    try{
+      if(editingId){
+        courseStore.update(editingId, payload);   // PUT /api/courses/{id}/
+        showToast("Course updated.");
+      } else {
+        courseStore.create(payload);              // POST /api/courses/
+        showToast("Course added.");
+      }
+      closeModal();
+      render();
+    }catch(err){
+      console.error(err);
+      showToast("Something went wrong saving this course.", true);
+    }
+  });
+
+  els.tbody.addEventListener("click", (e) => {
+    const btn = e.target.closest("button[data-action]");
+    if(!btn) return;
+    const id = btn.getAttribute("data-id");
+    const action = btn.getAttribute("data-action");
+    const all = courseStore.list();
+    const course = all.find(c => c.id === id);
+    if(!course) return;
+
+    if(action === "edit"){
+      openModal(course);
+    } else if(action === "delete"){
+      if(confirm(`Remove ${course.code} — ${course.name} from the register? This can't be undone.`)){
+        courseStore.remove(id);                    // DELETE /api/courses/{id}/
+        showToast("Course removed.");
+        render();
+      }
+    }
+  });
+
+  els.search.addEventListener("input", (e) => { query = e.target.value; render(); });
+  els.deptFilter.addEventListener("change", (e) => { deptValue = e.target.value; render(); });
+  els.semFilter.addEventListener("change", (e) => { semValue = e.target.value; render(); });
+
+  render();
+})();
+</script>
+</body>
+</html>
